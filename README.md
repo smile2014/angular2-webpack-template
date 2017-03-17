@@ -12,3 +12,5 @@ This is an Angular2 + Webpack template. It is build using the introduction from 
 `npm test`
 
 
+The project in its current version supports SASS and uses the ExtractTextPlugin.
+
