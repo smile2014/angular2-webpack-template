@@ -1,7 +1,15 @@
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var helpers = require('./helpers');
+
+
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+
+const extractSass = new ExtractTextPlugin({
+    filename: "[name].[contenthash].css",
+    disable: process.env.NODE_ENV === "development"
+});
+
 
 module.exports = {
     entry: {
@@ -21,8 +29,8 @@ module.exports = {
                 loaders: [
                     {
                         loader: 'awesome-typescript-loader',
-                        options: { configFileName: helpers.root('src', 'tsconfig.json') }
-                    } , 'angular2-template-loader'
+                        options: {configFileName: helpers.root('src', 'tsconfig.json')}
+                    }, 'angular2-template-loader'
                 ]
             },
             {
@@ -45,11 +53,18 @@ module.exports = {
             },
 
 
-
             {
                 test: /\.scss$/,
                 exclude: helpers.root('src', 'app'),
-                loader: 'style-loader!css-loader?sourceMap!sass-loader'
+                use: extractSass.extract({
+                    use: [{
+                        loader: "css-loader"
+                    }, {
+                        loader: "sass-loader"
+                    }],
+                    // use style-loader in development
+                    fallback: "style-loader"
+                })
             },
             {
                 test: /\.scss$/,
@@ -60,6 +75,7 @@ module.exports = {
     },
 
     plugins: [
+        extractSass,
         // Workaround for angular/angular#11580
         new webpack.ContextReplacementPlugin(
             // The (\\|\/) piece accounts for path separators in *nix and Windows
